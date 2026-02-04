@@ -1,0 +1,42 @@
+{
+  "name": "angular-mfe-schematic",
+  "version": "1.0.0",
+  "description": "Angular MFE workspace generator with Module Federation support",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && jasmine src/**/*_spec.js"
+  },
+  "keywords": [
+    "schematics",
+    "angular",
+    "microfrontend",
+    "module-federation",
+    "mfe",
+    "angular-cli"
+  ],
+  "author": "Tarikul Islam Soikot <tarikulsoikot@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic/issues"
+  },
+  "homepage": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic#readme",
+  "schematics": "./src/collection.json",
+  "dependencies": {
+    "@angular-devkit/core": "^21.0.4",
+    "@angular-devkit/schematics": "^21.0.4",
+    "typescript": "~5.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "@types/jasmine": "~5.1.0",
+    "jasmine": "^5.0.0"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ]
+}

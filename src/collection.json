@@ -1,0 +1,15 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "platform": {
+      "description": "Generate platform app with Module Federation, Angular Material, and library management",
+      "factory": "./platform/index#platform",
+      "schema": "./platform/schema.json"
+    },
+    "mfe": {
+      "description": "Generate MFE app with Module Federation, Angular Material, and CRUD functionality",
+      "factory": "./mfe/index#mfeApp",
+      "schema": "./mfe/schema.json"
+    }
+  }
+}

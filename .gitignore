@@ -1,0 +1,11 @@
+node_modules/
+*.js
+*.js.map
+*.d.ts
+!jest.config.js
+.angular/
+dist/
+.DS_Store
+*.log
+test-mfe/
+test-platform/

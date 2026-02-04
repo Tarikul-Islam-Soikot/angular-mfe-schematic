@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "MfeSchematic",
+  "title": "MFE App Generator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the MFE app",
+      "type": "string",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    },
+    "port": {
+      "description": "Port number for the MFE app",
+      "type": "number",
+      "default": 4201
+    }
+  },
+  "required": ["name"]
+}
