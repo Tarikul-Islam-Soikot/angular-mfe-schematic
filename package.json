@@ -36,7 +36,10 @@
     "jasmine": "^5.0.0"
   },
   "files": [
-    "src",
+    "src/**/*.js",
+    "src/**/*.d.ts",
+    "src/**/*.json",
+    "src/**/*.ts",
     "README.md"
   ]
 }
