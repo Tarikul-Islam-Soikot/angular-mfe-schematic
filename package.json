@@ -36,10 +36,6 @@
     "typescript": "~5.9.2"
   },
   "files": [
-    "src/**/*.js",
-    "src/**/*.d.ts",
-    "src/**/*.json",
-    "src/**/*.ts",
-    "README.md"
+    "src"
   ]
 }

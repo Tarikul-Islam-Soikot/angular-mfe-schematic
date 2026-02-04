@@ -24,6 +24,8 @@ Or install directly:
 npm install -g https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic.git
 ```
 
+> **Note:** You may see npm warnings about rxjs during installation on Windows. These are harmless and don't affect functionality.
+
 ## Usage
 
 ### Generate MFE Application
