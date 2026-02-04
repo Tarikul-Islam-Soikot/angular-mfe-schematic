@@ -27,13 +27,13 @@
   "schematics": "./src/collection.json",
   "dependencies": {
     "@angular-devkit/core": "^21.0.4",
-    "@angular-devkit/schematics": "^21.0.4",
-    "typescript": "~5.9.2"
+    "@angular-devkit/schematics": "^21.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.17.19",
     "@types/jasmine": "~5.1.0",
-    "jasmine": "^5.0.0"
+    "jasmine": "^5.0.0",
+    "typescript": "~5.9.2"
   },
   "files": [
     "src/**/*.js",
