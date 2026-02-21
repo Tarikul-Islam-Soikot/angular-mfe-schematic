@@ -12,6 +12,12 @@ Angular schematics for generating Micro Frontend (MFE) applications with Module 
 
 ## Installation
 
+### From npm (Recommended)
+
+```bash
+npm install -g angular-mfe-schematic
+```
+
 ### From GitHub
 
 ```bash
@@ -31,9 +37,6 @@ npm install -g https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic.git
 ```bash
 # Check if schematic is installed
 npm list -g angular-mfe-schematic
-
-# View available schematics
-ng new --help
 ```
 
 ## Usage
