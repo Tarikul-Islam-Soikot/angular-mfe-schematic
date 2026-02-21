@@ -4,7 +4,13 @@
   "description": "Angular MFE workspace generator with Module Federation support",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && jasmine src/**/*_spec.js"
+    "test": "npm run build && jasmine src/**/*_spec.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "spell": "cspell \"**/*.{ts,md,json}\"",
+    "check": "npm run format:check && npm run lint && npm run spell"
   },
   "keywords": [
     "schematics",
@@ -24,7 +30,7 @@
     "url": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic/issues"
   },
   "homepage": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic#readme",
-  "schematics": "./src/collection.json",
+  "schematics": "./dist/collection.json",
   "dependencies": {
     "@angular-devkit/core": "^21.0.4",
     "@angular-devkit/schematics": "^21.0.4"
@@ -32,11 +38,17 @@
   "devDependencies": {
     "@types/node": "^20.17.19",
     "@types/jasmine": "~5.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "cspell": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
     "jasmine": "^5.0.0",
+    "prettier": "^3.0.0",
     "typescript": "~5.9.2"
   },
   "files": [
-    "src",
+    "dist",
     "README.md"
   ],
   "publishConfig": {
