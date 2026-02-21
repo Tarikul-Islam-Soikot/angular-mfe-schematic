@@ -193,6 +193,79 @@ describe('ConfigService', () => {
     tree.create(`${libPath}/core/validators/custom-validators/custom-validators.spec.ts`, validatorsTest);
     tree.create(`${libPath}/core/pipes/truncate/truncate.pipe.spec.ts`, truncatePipeTest);
     tree.create(`${libPath}/core/pipes/capitalize/capitalize.pipe.spec.ts`, capitalizePipeTest);
+    tree.create(`${libPath}/data/data-service/data.service.spec.ts`, `import { TestBed } from '@angular/core/testing';
+import { DataService } from './data.service';
+
+describe('DataService', () => {
+  let service: DataService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(DataService);
+  });
+
+  it('should set and get data', () => {
+    service.setData('testKey', 'testValue');
+    expect(service.getData('testKey')).toBe('testValue');
+  });
+
+  it('should emit data changes', (done) => {
+    service.data$.subscribe(data => {
+      if (data['key']) {
+        expect(data['key']).toBe('value');
+        done();
+      }
+    });
+    service.setData('key', 'value');
+  });
+
+  it('should clear specific data', () => {
+    service.setData('key1', 'value1');
+    service.setData('key2', 'value2');
+    service.clearData('key1');
+    expect(service.getData('key1')).toBeUndefined();
+    expect(service.getData('key2')).toBe('value2');
+  });
+});
+`);
+    tree.create(`${libPath}/data/auth-service/auth.service.spec.ts`, `import { TestBed } from '@angular/core/testing';
+import { AuthService } from './auth.service';
+
+describe('AuthService', () => {
+  let service: AuthService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(AuthService);
+    localStorage.clear();
+  });
+
+  it('should login user', () => {
+    const user = { id: '1', name: 'Test', email: 'test@test.com' };
+    service.login(user);
+    expect(service.isLoggedIn()).toBe(true);
+    expect(service.getUser()).toEqual(user);
+  });
+
+  it('should logout user', () => {
+    const user = { id: '1', name: 'Test', email: 'test@test.com' };
+    service.login(user);
+    service.logout();
+    expect(service.isLoggedIn()).toBe(false);
+    expect(service.getUser()).toBeNull();
+  });
+
+  it('should emit user changes', (done) => {
+    const user = { id: '1', name: 'Test', email: 'test@test.com' };
+    service.user$.subscribe(u => {
+      if (u) {
+        expect(u).toEqual(user);
+        done();
+      }
+    });
+    service.login(user);
+  });
+});`);
 
     return tree;
   };
