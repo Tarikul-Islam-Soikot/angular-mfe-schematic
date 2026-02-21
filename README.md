@@ -41,13 +41,13 @@ ng new --help
 ### Generate MFE Application
 
 ```bash
-ng new my-workspace --collection=angular-mfe-schematic --schematic=mfe --name=my-mfe --port=4201
+schematics angular-mfe-schematic:mfe --name=my-mfe --port=4201 --dry-run=false
 ```
 
 ### Generate Platform Application
 
 ```bash
-ng new my-workspace --collection=angular-mfe-schematic --schematic=platform --name=my-platform --port=4200
+schematics angular-mfe-schematic:platform --name=my-platform --port=4200 --dry-run=false
 ```
 
 ## Options
