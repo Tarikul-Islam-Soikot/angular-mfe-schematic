@@ -1,7 +1,21 @@
+# Dependencies
 node_modules/
-.angular/
+
+# Build output
 dist/
-.DS_Store
-*.log
+.angular/
+
+# TypeScript compiled files (if built without outDir)
+src/**/*.js
+src/**/*.d.ts
+src/**/*.js.map
+
+# Test projects
 test-mfe/
 test-platform/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
