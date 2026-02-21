@@ -4,7 +4,7 @@ exports.setupJest = setupJest;
 function setupJest(options) {
     return (tree) => {
         const packageJson = JSON.parse(tree.read(`${options.name}/package.json`).toString());
-        packageJson.devDependencies = Object.assign(Object.assign({}, packageJson.devDependencies), { 'jest': '^30.0.0', 'jest-preset-angular': '^16.0.0', '@types/jest': '^29.0.0' });
+        packageJson.devDependencies = Object.assign(Object.assign({}, packageJson.devDependencies), { 'jest': '^30.0.0', 'jest-environment-jsdom': '^30.0.0', 'jest-preset-angular': '^16.0.0', '@types/jest': '^29.0.0' });
         packageJson.scripts.test = 'jest';
         packageJson.scripts['test:watch'] = 'jest --watch';
         packageJson.scripts['test:coverage'] = 'jest --coverage';
@@ -17,7 +17,18 @@ function setupJest(options) {
   coverageReporters: ['html', 'text-summary', 'lcov']
 };`;
         tree.create(`${options.name}/jest.config.js`, jestConfig);
-        tree.create(`${options.name}/setup-jest.ts`, `import 'jest-preset-angular/setup-jest';`);
+        tree.create(`${options.name}/setup-jest.ts`, `import 'zone.js';
+import 'zone.js/testing';
+import { getTestBed } from '@angular/core/testing';
+import {
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting,
+} from '@angular/platform-browser-dynamic/testing';
+
+getTestBed().initTestEnvironment(
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting(),
+);`);
         return tree;
     };
 }
