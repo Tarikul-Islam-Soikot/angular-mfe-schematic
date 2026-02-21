@@ -423,13 +423,6 @@ export const routes: Routes = [
     }).then(m => m.DemoModule)
   },
   {
-    path: 'mfe',
-    loadChildren: () => loadRemoteModule({
-      remoteEntry: 'http://localhost:4201/remoteEntry.json',
-      exposedModule: './Routes'
-    }).then(m => m.routes)
-  },
-  {
     path: '**',
     loadComponent: () => import('./components/not-found/not-found.component').then(c => c.NotFoundComponent)
   }

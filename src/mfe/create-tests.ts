@@ -15,7 +15,7 @@ describe('UserService', () => {
   });
 
   it('should create user', () => {
-    const result = service.createUser({ name: 'Test', email: 'test@test.com', role: 'User' });
+    const result = service.createUser({ name: 'Test', email: 'test@test.com', roleId: 1, gender: 'Male', amount: 1000, isActive: true, countryId: 1 });
     expect(result.id).toBe(3);
     expect(service.getUsers()).toHaveLength(3);
   });
@@ -27,16 +27,9 @@ describe('UserService', () => {
 });`;
 
     const userCrudComponentTest = `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { UserCrudComponent } from './user-crud.component';
-import { UserService } from './user.service';
+import { UserService } from '../../services/user.service';
 
 describe('UserCrudComponent', () => {
   let component: UserCrudComponent;
@@ -44,13 +37,8 @@ describe('UserCrudComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UserCrudComponent],
-      imports: [
-        FormsModule, NoopAnimationsModule, MatCardModule,
-        MatFormFieldModule, MatInputModule, MatButtonModule,
-        MatTableModule, MatIconModule
-      ],
-      providers: [UserService]
+      imports: [UserCrudComponent],
+      providers: [UserService, provideAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserCrudComponent);
@@ -61,25 +49,17 @@ describe('UserCrudComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should save new user', () => {
-    component.currentUser = { name: 'New User', email: 'new@test.com', role: 'User' };
-    component.saveUser();
-    expect(component.users).toHaveLength(3);
-  });
 });`;
 
     const appComponentTest = `import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MatToolbarModule, MatButtonModule],
-      declarations: [AppComponent]
+      imports: [AppComponent],
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 

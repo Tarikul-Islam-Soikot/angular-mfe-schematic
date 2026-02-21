@@ -28,9 +28,7 @@ describe('LibraryService', () => {
 });`;
 
     const homeComponentTest = `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+import { provideRouter } from '@angular/router';
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
@@ -39,8 +37,8 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HomeComponent],
-      imports: [RouterTestingModule, MatCardModule, MatButtonModule]
+      imports: [HomeComponent],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
@@ -54,16 +52,9 @@ describe('HomeComponent', () => {
 });`;
 
     const libraryComponentTest = `import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { LibraryComponent } from './library.component';
-import { LibraryService } from './library.service';
+import { LibraryService } from '../../services/library.service';
 
 describe('LibraryComponent', () => {
   let component: LibraryComponent;
@@ -71,13 +62,8 @@ describe('LibraryComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LibraryComponent],
-      imports: [
-        FormsModule, NoopAnimationsModule, MatCardModule,
-        MatFormFieldModule, MatInputModule, MatButtonModule,
-        MatListModule, MatIconModule
-      ],
-      providers: [LibraryService]
+      imports: [LibraryComponent],
+      providers: [LibraryService, provideAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LibraryComponent);
@@ -97,16 +83,14 @@ describe('LibraryComponent', () => {
 });`;
 
     const appComponentTest = `import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
+import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MatToolbarModule, MatButtonModule],
-      declarations: [AppComponent]
+      imports: [AppComponent],
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 
