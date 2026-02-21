@@ -537,35 +537,37 @@ export class AmountDescriptorPipe implements PipeTransform {
     
     const parts: string[] = [];
     let remaining = Math.floor(value);
-    const decimal = Math.round((value - remaining) * 1000);
+    const decimalPart = value - remaining;
+    const decimalStr = decimalPart > 0 ? decimalPart.toFixed(3).substring(2).replace(/0+$/, '') : '';
+    const decimal = decimalStr ? parseInt(decimalStr) : 0;
     
     const trillion = Math.floor(remaining / 1_000_000_000_000);
     if (trillion > 0) {
-      parts.push('\${trillion} trillion');
+      parts.push(\`\${trillion} trillion\`);
       remaining %= 1_000_000_000_000;
     }
     
     const billion = Math.floor(remaining / 1_000_000_000);
     if (billion > 0) {
-      parts.push('\${billion} billion');
+      parts.push(\`\${billion} billion\`);
       remaining %= 1_000_000_000;
     }
     
     const million = Math.floor(remaining / 1_000_000);
     if (million > 0) {
-      parts.push('\${million} million');
+      parts.push(\`\${million} million\`);
       remaining %= 1_000_000;
     }
     
     const thousand = Math.floor(remaining / 1_000);
     if (thousand > 0) {
-      parts.push('\${thousand} thousand');
+      parts.push(\`\${thousand} thousand\`);
       remaining %= 1_000;
     }
     
     const hundred = Math.floor(remaining / 100);
     if (hundred > 0) {
-      parts.push('\${hundred} hundred');
+      parts.push(\`\${hundred} hundred\`);
       remaining %= 100;
     }
     
@@ -574,7 +576,7 @@ export class AmountDescriptorPipe implements PipeTransform {
     }
     
     if (decimal > 0) {
-      parts.push('point \${decimal}');
+      parts.push(\`point \${decimal}\`);
     }
     
     return parts.length > 0 ? parts.join(' ') : 'Zero';

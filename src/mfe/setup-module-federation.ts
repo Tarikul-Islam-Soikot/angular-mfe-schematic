@@ -1,5 +1,6 @@
 import { Rule, Tree } from '@angular-devkit/schematics';
 import { Schema } from './schema';
+import { createOrOverwrite } from '../utils';
 
 export function setupModuleFederation(options: Schema): Rule {
   return (tree: Tree) => {
@@ -12,7 +13,6 @@ export function setupModuleFederation(options: Schema): Rule {
 module.exports = withNativeFederation({
   name: '${options.name}',
   exposes: {
-    './UserComponent': './src/app/components/user-crud/user-crud.component.ts',
     './Routes': './src/app/app.routes.ts',
     './DemoModule': './src/app/modules/demo/demo.module.ts'
   },
@@ -33,7 +33,7 @@ module.exports = withNativeFederation({
   ],
 });`;
 
-    tree.create(`${options.name}/federation.config.js`, federationConfig);
+    createOrOverwrite(tree, `${options.name}/federation.config.js`, federationConfig, options.force);
     return tree;
   };
 }

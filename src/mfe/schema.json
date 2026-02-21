@@ -16,6 +16,11 @@
       "description": "Port number for the MFE app",
       "type": "number",
       "default": 4201
+    },
+    "force": {
+      "description": "Overwrite existing files",
+      "type": "boolean",
+      "default": false
     }
   },
   "required": ["name"]
