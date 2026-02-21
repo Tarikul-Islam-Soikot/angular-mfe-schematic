@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupModuleFederation = setupModuleFederation;
+const utils_1 = require("../utils");
 function setupModuleFederation(options) {
     return (tree) => {
         const packageJson = JSON.parse(tree.read(`${options.name}/package.json`).toString());
@@ -11,7 +12,6 @@ function setupModuleFederation(options) {
 module.exports = withNativeFederation({
   name: '${options.name}',
   exposes: {
-    './UserComponent': './src/app/components/user-crud/user-crud.component.ts',
     './Routes': './src/app/app.routes.ts',
     './DemoModule': './src/app/modules/demo/demo.module.ts'
   },
@@ -31,7 +31,7 @@ module.exports = withNativeFederation({
     'zone.js/testing',
   ],
 });`;
-        tree.create(`${options.name}/federation.config.js`, federationConfig);
+        (0, utils_1.createOrOverwrite)(tree, `${options.name}/federation.config.js`, federationConfig, options.force);
         return tree;
     };
 }
