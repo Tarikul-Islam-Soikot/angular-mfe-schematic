@@ -500,6 +500,100 @@ export class FooterComponent {
     const publicApi = `export * from './core/services';\nexport * from './core/validators';\nexport * from './core/directives';\nexport * from './core/pipes';\nexport * from './core/core.module';\nexport * from './template';`;
     tree.create(`${options.name}/src/lib/${libName}/public-api.ts`, publicApi);
 
+    // Library package.json
+    const libPackageJson = {
+      name: '@tarikul-islam-soikot/mfe-shared-lib',
+      version: '1.0.0',
+      description: 'Shared library for MFE and Platform applications',
+      main: 'dist/public-api.js',
+      types: 'dist/public-api.d.ts',
+      scripts: {
+        build: 'tsc -p tsconfig.lib.json',
+        prepublishOnly: 'npm run build'
+      },
+      keywords: ['mfe', 'shared', 'angular'],
+      author: 'Tarikul Islam Soikot <tarikulsoikot@gmail.com>',
+      license: 'MIT',
+      repository: {
+        type: 'git',
+        url: 'https://github.com/Tarikul-Islam-Soikot/mfe-shared-lib.git'
+      },
+      files: ['dist'],
+      peerDependencies: {
+        '@angular/core': '^21.0.0',
+        '@angular/common': '^21.0.0',
+        rxjs: '^7.8.0'
+      },
+      devDependencies: {
+        '@angular/core': '^21.0.0',
+        '@angular/common': '^21.0.0',
+        rxjs: '^7.8.0',
+        typescript: '~5.9.2'
+      }
+    };
+    tree.create(`${options.name}/src/lib/${libName}/package.json`, JSON.stringify(libPackageJson, null, 2));
+
+    // Library tsconfig
+    const libTsConfig = {
+      extends: '../../../tsconfig.json',
+      compilerOptions: {
+        outDir: './dist',
+        declaration: true,
+        declarationMap: true,
+        module: 'ES2022',
+        target: 'ES2022'
+      },
+      include: ['**/*.ts'],
+      exclude: ['**/*.spec.ts', 'dist']
+    };
+    tree.create(`${options.name}/src/lib/${libName}/tsconfig.lib.json`, JSON.stringify(libTsConfig, null, 2));
+
+    // GitHub Actions workflow
+    const githubWorkflow = `name: Publish Shared Library
+
+on:
+  push:
+    paths:
+      - 'src/lib/shared-lib/**'
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@tarikul-islam-soikot'
+      
+      - name: Install dependencies
+        working-directory: ./src/lib/shared-lib
+        run: npm install
+      
+      - name: Build library
+        working-directory: ./src/lib/shared-lib
+        run: npm run build
+      
+      - name: Bump version
+        working-directory: ./src/lib/shared-lib
+        run: npm version patch --no-git-tag-version
+      
+      - name: Publish to GitHub Packages
+        working-directory: ./src/lib/shared-lib
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: \${{ secrets.GITHUB_TOKEN }}`;
+    tree.create(`${options.name}/.github/workflows/publish-lib.yml`, githubWorkflow);
+
+    // .npmrc for consuming the library
+    const npmrc = `@tarikul-islam-soikot:registry=https://npm.pkg.github.com`;
+    tree.create(`${options.name}/.npmrc`, npmrc);
+
     return tree;
   };
 }

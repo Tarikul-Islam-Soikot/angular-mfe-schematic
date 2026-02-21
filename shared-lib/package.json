@@ -1,0 +1,26 @@
+{
+  "name": "@tarikul-islam-soikot/mfe-shared-lib",
+  "version": "1.0.0",
+  "description": "Shared library for MFE and Platform applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["mfe", "shared", "angular"],
+  "author": "Tarikul Islam Soikot <tarikulsoikot@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tarikul-Islam-Soikot/angular-mfe-schematic.git",
+    "directory": "shared-lib"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}
