@@ -243,12 +243,62 @@ export class AmountDescriptorPipe implements PipeTransform {
   }
 
   private formatAmount(value: number): string {
-    if (value >= 1000000000000) return (value / 1000000000000).toFixed(2) + ' Trillion';
-    if (value >= 1000000000) return (value / 1000000000).toFixed(2) + ' Billion';
-    if (value >= 1000000) return (value / 1000000).toFixed(2) + ' Million';
-    if (value >= 1000) return (value / 1000).toFixed(2) + ' Thousand';
-    if (value >= 100) return (value / 100).toFixed(2) + ' Hundred';
-    return value.toString();
+    if (value < 1) return value.toFixed(3);
+    
+    const parts: string[] = [];
+    let remaining = Math.floor(value);
+    
+    // Trillions
+    if (remaining >= 1000000000000) {
+      const trillions = Math.floor(remaining / 1000000000000);
+      parts.push(\`\${trillions} trillion\`);
+      remaining = remaining % 1000000000000;
+    }
+    
+    // Billions
+    if (remaining >= 1000000000) {
+      const billions = Math.floor(remaining / 1000000000);
+      parts.push(\`\${billions} billion\`);
+      remaining = remaining % 1000000000;
+    }
+    
+    // Millions
+    if (remaining >= 1000000) {
+      const millions = Math.floor(remaining / 1000000);
+      parts.push(\`\${millions} million\`);
+      remaining = remaining % 1000000;
+    }
+    
+    // Thousands
+    if (remaining >= 1000) {
+      const thousands = Math.floor(remaining / 1000);
+      parts.push(\`\${thousands} thousand\`);
+      remaining = remaining % 1000;
+    }
+    
+    // Hundreds
+    if (remaining >= 100) {
+      const hundreds = Math.floor(remaining / 100);
+      parts.push(\`\${hundreds} hundred\`);
+      remaining = remaining % 100;
+    }
+    
+    // Remaining units
+    if (remaining > 0) {
+      parts.push(remaining.toString());
+    }
+    
+    // Handle decimal part
+    const decimalPart = value - Math.floor(value);
+    if (decimalPart > 0) {
+      const decimalStr = decimalPart.toFixed(3).substring(2); // Remove "0."
+      if (parseInt(decimalStr) > 0) {
+        const digits = decimalStr.split('').join(' ');
+        parts.push(\`point \${digits}\`);
+      }
+    }
+    
+    return parts.length > 0 ? parts.join(' ') : '0';
   }
 }`;
 
@@ -573,10 +623,94 @@ export class AuthService {
     tree.create(`${libPath}/data/index.ts`, `export * from './data-service/data.service';\nexport * from './auth-service/auth.service';`);
     tree.create(`${libPath}/data/package.json`, JSON.stringify({ name: '@ngx-mfe/data', version: '1.0.0', main: 'index.ts' }, null, 2));
     
+    // Loader service
+    const loaderService = `import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class LoaderService {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  public loading$ = this.loadingSubject.asObservable();
+  private requestCount = 0;
+  private enabled = true;
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) {
+      this.requestCount = 0;
+      this.loadingSubject.next(false);
+    }
+  }
+
+  show(): void {
+    if (!this.enabled) return;
+    this.requestCount++;
+    this.loadingSubject.next(true);
+  }
+
+  hide(): void {
+    if (!this.enabled) return;
+    this.requestCount--;
+    if (this.requestCount <= 0) {
+      this.requestCount = 0;
+      this.loadingSubject.next(false);
+    }
+  }
+}`;
+
+    // Loader interceptor
+    const loaderInterceptor = `import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { LoaderService } from '../loader-service/loader.service';
+
+export const loaderInterceptor: HttpInterceptorFn = (req, next) => {
+  const loaderService = inject(LoaderService);
+  loaderService.show();
+  return next(req).pipe(finalize(() => loaderService.hide()));
+};`;
+
+    // Loader component
+    const loaderComponent = `import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoaderService } from '../loader-service/loader.service';
+
+@Component({
+  selector: 'lib-loader',
+  standalone: true,
+  imports: [CommonModule, MatProgressSpinnerModule],
+  template: \`
+    <div class="loader-overlay" *ngIf="loaderService.loading$ | async">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  \`,
+  styles: [\`
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+  \`]
+})
+export class LoaderComponent {
+  constructor(public loaderService: LoaderService) {}
+}`;
+
     // Create template library structure
     tree.create(`${libPath}/template/header/header.component.ts`, headerComponent);
     tree.create(`${libPath}/template/footer/footer.component.ts`, footerComponent);
-    tree.create(`${libPath}/template/index.ts`, `export * from './header/header.component';\nexport * from './footer/footer.component';`);
+    tree.create(`${libPath}/template/loader-service/loader.service.ts`, loaderService);
+    tree.create(`${libPath}/template/loader-interceptor/loader.interceptor.ts`, loaderInterceptor);
+    tree.create(`${libPath}/template/loader/loader.component.ts`, loaderComponent);
+    tree.create(`${libPath}/template/index.ts`, `export * from './header/header.component';\nexport * from './footer/footer.component';\nexport * from './loader-service/loader.service';\nexport * from './loader-interceptor/loader.interceptor';\nexport * from './loader/loader.component';`);
     tree.create(`${libPath}/template/package.json`, JSON.stringify({ name: '@ngx-mfe/template', version: '1.0.0', main: 'index.ts' }, null, 2));
     
     // Main library public API

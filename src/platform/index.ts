@@ -7,6 +7,8 @@ import { createLibraryLogic } from './create-components';
 import { createLibrary } from './create-library';
 import { createLibraryTests } from './create-library-tests';
 import { createTests } from './create-tests';
+import { addLintAndFormat } from './add-lint-format';
+import { createOrOverwrite } from '../utils';
 
 export function platform(options: Schema): Rule {
   return chain([
@@ -18,13 +20,14 @@ export function platform(options: Schema): Rule {
     createLibraryLogic(options),
     createLibrary(options),
     createLibraryTests(options),
-    createTests(options)
+    createTests(options),
+    addLintAndFormat(options)
   ]);
 }
 
 function createWorkspaceFiles(options: Schema): Rule {
   return (tree: Tree) => {
-    tree.create(`${options.name}/angular.json`, JSON.stringify({
+    createOrOverwrite(tree, `${options.name}/angular.json`, JSON.stringify({
       "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
       "version": 1,
       "newProjectRoot": "projects",
@@ -112,9 +115,9 @@ function createWorkspaceFiles(options: Schema): Rule {
           }
         }
       }
-    }, null, 2));
+    }, null, 2), options.force);
 
-    tree.create(`${options.name}/package.json`, JSON.stringify({
+    createOrOverwrite(tree, `${options.name}/package.json`, JSON.stringify({
       "name": options.name,
       "version": "0.0.0",
       "scripts": {
@@ -123,6 +126,11 @@ function createWorkspaceFiles(options: Schema): Rule {
         "build": "ng build",
         "test": "jest",
         "lint": "ng lint",
+        "lint:fix": "ng lint --fix",
+        "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+        "format:check": "prettier --check \"src/**/*.{ts,html,scss}\"",
+        "spell": "cspell \"**/*.{ts,html,md,json}\"",
+        "check": "npm run format:check && npm run lint && npm run spell",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage"
       },
@@ -145,19 +153,30 @@ function createWorkspaceFiles(options: Schema): Rule {
       },
       "devDependencies": {
         "@angular-devkit/build-angular": "^21.0.0",
+        "@angular-eslint/builder": "^18.0.0",
+        "@angular-eslint/eslint-plugin": "^18.0.0",
+        "@angular-eslint/eslint-plugin-template": "^18.0.0",
+        "@angular-eslint/schematics": "^18.0.0",
+        "@angular-eslint/template-parser": "^18.0.0",
         "@angular/build": "^21.1.2",
         "@angular/cli": "^21.0.0",
         "@angular/compiler-cli": "^21.0.0",
         "@oxc-parser/binding-win32-x64-msvc": "^0.112.0",
         "@types/jest": "^29.0.0",
+        "@typescript-eslint/eslint-plugin": "^8.0.0",
+        "@typescript-eslint/parser": "^8.0.0",
+        "cspell": "^8.0.0",
+        "eslint": "^9.0.0",
+        "eslint-config-prettier": "^9.0.0",
         "jest": "^30.0.0",
         "jest-environment-jsdom": "^30.0.0",
         "jest-preset-angular": "^16.0.0",
+        "prettier": "^3.0.0",
         "typescript": "~5.9.0"
       }
-    }, null, 2));
+    }, null, 2), options.force);
 
-    tree.create(`${options.name}/tsconfig.json`, JSON.stringify({
+    createOrOverwrite(tree, `${options.name}/tsconfig.json`, JSON.stringify({
       "compileOnSave": false,
       "compilerOptions": {
         "baseUrl": "./",
@@ -185,9 +204,9 @@ function createWorkspaceFiles(options: Schema): Rule {
         "strictInputAccessModifiers": true,
         "strictTemplates": true
       }
-    }, null, 2));
+    }, null, 2), options.force);
 
-    tree.create(`${options.name}/tsconfig.app.json`, JSON.stringify({
+    createOrOverwrite(tree, `${options.name}/tsconfig.app.json`, JSON.stringify({
       "extends": "./tsconfig.json",
       "compilerOptions": {
         "outDir": "./out-tsc/app",
@@ -204,7 +223,7 @@ function createWorkspaceFiles(options: Schema): Rule {
         "src/**/*.spec.ts",
         "src/test.ts"
       ]
-    }, null, 2));
+    }, null, 2), options.force);
 
     return tree;
   };
@@ -212,34 +231,34 @@ function createWorkspaceFiles(options: Schema): Rule {
 
 function createPlatformApp(options: Schema): Rule {
   return (tree: Tree) => {
-    tree.create(`${options.name}/src/bootstrap.ts`, `import { bootstrapApplication } from '@angular/platform-browser';
+    createOrOverwrite(tree, `${options.name}/src/bootstrap.ts`, `import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/main.ts`, `import { initFederation } from '@angular-architects/native-federation';
+    createOrOverwrite(tree, `${options.name}/src/main.ts`, `import { initFederation } from '@angular-architects/native-federation';
 
-initFederation('/assets/federation.manifest.json')
+initFederation()
   .catch(err => console.error(err))
   .then(_ => import('./bootstrap'))
   .catch(err => console.error(err));
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/assets/federation.manifest.json`, `{
-	"my-mfe": "http://localhost:4201/remoteEntry.json"
-}`);
-
-    tree.create(`${options.name}/src/assets/appSettings.json`, `{
+    createOrOverwrite(tree, `${options.name}/src/assets/appSettings.json`, `{
   "apiUrl": "http://localhost:3000/api",
   "environment": "development",
   "enableLogging": true,
-  "version": "1.0.0"
-}`);
+  "enableLoader": true,
+  "version": "1.0.0",
+  "mfeUrls": {
+    "my-mfe": "http://localhost:4201"
+  }
+}`, options.force);
 
-    tree.create(`${options.name}/src/index.html`, `<!doctype html>
+    createOrOverwrite(tree, `${options.name}/src/index.html`, `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -254,9 +273,9 @@ initFederation('/assets/federation.manifest.json')
   <app-root></app-root>
 </body>
 </html>
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/styles.scss`, `@import '@angular/material/prebuilt-themes/indigo-pink.css';
+    createOrOverwrite(tree, `${options.name}/src/styles.scss`, `@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -311,9 +330,9 @@ app-user-list .mat-card {
 app-user-list .mat-table {
   margin-top: 16px;
 }
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/app/material.module.ts`, `import { NgModule } from '@angular/core';
+    createOrOverwrite(tree, `${options.name}/src/app/material.module.ts`, `import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -349,9 +368,9 @@ const MATERIAL_MODULES = [
   exports: MATERIAL_MODULES
 })
 export class MaterialModule {}
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/app/app.component.ts`, `import { Component } from '@angular/core';
+    createOrOverwrite(tree, `${options.name}/src/app/app.component.ts`, `import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -374,9 +393,9 @@ import { MatButtonModule } from '@angular/material/button';
   styles: [\`.spacer { flex: 1 1 auto; }\`]
 })
 export class AppComponent {}
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/app/app.config.ts`, `import { ApplicationConfig } from '@angular/core';
+    createOrOverwrite(tree, `${options.name}/src/app/app.config.ts`, `import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
@@ -389,10 +408,50 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient()
   ]
 };
-`);
+`, options.force);
 
-    tree.create(`${options.name}/src/app/app.routes.ts`, `import { Routes } from '@angular/router';
-import { loadRemoteModule } from '@angular-architects/native-federation';
+    createOrOverwrite(tree, `${options.name}/src/app/utils/mfe-loader.util.ts`, `import { loadRemoteModule } from '@angular-architects/native-federation';
+import { HttpClient } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+
+interface AppSettings {
+  mfeUrls: Record<string, string>;
+}
+
+let appSettings: AppSettings | null = null;
+
+async function getMfeUrl(mfeName: string): Promise<string> {
+  if (!appSettings) {
+    const http = inject(HttpClient);
+    appSettings = await firstValueFrom(http.get<AppSettings>('/assets/appSettings.json'));
+  }
+  
+  const mfeUrl = appSettings.mfeUrls[mfeName];
+  if (!mfeUrl) {
+    throw new Error(\`MFE '\${mfeName}' not found in appSettings\`);
+  }
+  
+  return mfeUrl;
+}
+
+export async function loadMfeModule(mfeName: string, exposedModule: string) {
+  const mfeUrl = await getMfeUrl(mfeName);
+  
+  return loadRemoteModule({
+    remoteEntry: \`\${mfeUrl}/remoteEntry.json\`,
+    exposedModule
+  });
+}
+
+export async function loadMfeComponent(mfeName: string, exposedModule: string) {
+  const module = await loadMfeModule(mfeName, exposedModule);
+  return module[Object.keys(module)[0]];
+}
+`, options.force);
+
+    createOrOverwrite(tree, `${options.name}/src/app/app.routes.ts`, `import { Routes } from '@angular/router';
+import { loadMfeModule } from './utils/mfe-loader.util';
 
 export const routes: Routes = [
   {
@@ -410,24 +469,18 @@ export const routes: Routes = [
   },
   {
     path: 'users',
-    loadChildren: () => loadRemoteModule({
-      remoteEntry: 'http://localhost:4201/remoteEntry.json',
-      exposedModule: './Routes'
-    }).then(m => m.routes)
+    loadChildren: () => loadMfeModule('my-mfe', './Routes').then(m => m.routes)
   },
   {
     path: 'demo',
-    loadChildren: () => loadRemoteModule({
-      remoteEntry: 'http://localhost:4201/remoteEntry.json',
-      exposedModule: './DemoModule'
-    }).then(m => m.DemoModule)
+    loadChildren: () => loadMfeModule('my-mfe', './DemoModule').then(m => m.DemoModule)
   },
   {
     path: '**',
     loadComponent: () => import('./components/not-found/not-found.component').then(c => c.NotFoundComponent)
   }
 ];
-`);
+`, options.force);
 
     return tree;
   };
