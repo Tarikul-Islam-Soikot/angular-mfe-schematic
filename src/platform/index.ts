@@ -254,7 +254,7 @@ initFederation()
   "enableLoader": true,
   "version": "1.0.0",
   "mfeUrls": {
-    "my-mfe": "http://localhost:4201"
+    "test-mfe": "http://localhost:4201"
   }
 }`, options.force);
 
@@ -469,11 +469,11 @@ export const routes: Routes = [
   },
   {
     path: 'users',
-    loadChildren: () => loadMfeModule('my-mfe', './Routes').then(m => m.routes)
+    loadChildren: () => loadMfeModule('test-mfe', './Routes').then(m => m.routes)
   },
   {
     path: 'demo',
-    loadChildren: () => loadMfeModule('my-mfe', './DemoModule').then(m => m.DemoModule)
+    loadChildren: () => loadMfeModule('test-mfe', './DemoModule').then(m => m.DemoModule)
   },
   {
     path: '**',
