@@ -1,4 +1,36 @@
+# Source files (only publish dist/)
+src/
 
-# Ignores TypeScript files, but keeps definitions.
+# Development files
 *.ts
 !*.d.ts
+tsconfig.json
+.editorconfig
+.eslintrc.json
+.prettierrc
+.prettierignore
+cspell.json
+
+# Test files
+*.spec.ts
+*.spec.js
+test-mfe/
+test-platform/
+
+# Build scripts
+build-schematic-link-generate-projects-run-locally.bat
+
+# Git files
+.git
+.gitignore
+
+# Documentation (keep README.md)
+CONTRIBUTING.md
+CHANGELOG.md
+MFE_INTEGRATION_GUIDE.md
+
+# Logs
+*.log
+
+# OS files
+.DS_Store

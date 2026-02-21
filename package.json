@@ -3,7 +3,8 @@
   "version": "1.0.1",
   "description": "Angular MFE workspace generator with Module Federation support",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && npm run copy:schemas",
+    "copy:schemas": "xcopy /Y /I src\\collection.json dist\\ && xcopy /Y /I src\\mfe\\schema.json dist\\mfe\\ && xcopy /Y /I src\\platform\\schema.json dist\\platform\\",
     "test": "npm run build && jasmine src/**/*_spec.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
@@ -52,6 +53,6 @@
     "README.md"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   }
 }
