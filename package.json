@@ -1,6 +1,6 @@
 {
   "name": "angular-mfe-schematic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Angular MFE workspace generator with Module Federation support",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -38,5 +38,8 @@
   "files": [
     "src",
     "README.md"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }
