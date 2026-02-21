@@ -130,6 +130,13 @@ cd test-mfe && npm start
 cd test-platform && npm start
 ```
 
+### Quick Start (Windows)
+
+```bash
+# Run everything in one command
+build-schematic-link-generate-projects-run-locally.bat
+```
+
 ## License
 
 MIT

@@ -147,6 +147,7 @@ function createWorkspaceFiles(options: Schema): Rule {
         "@oxc-parser/binding-win32-x64-msvc": "^0.112.0",
         "@types/jest": "^29.0.0",
         "jest": "^30.0.0",
+        "jest-environment-jsdom": "^30.0.0",
         "jest-preset-angular": "^16.0.0",
         "typescript": "~5.9.0"
       }
