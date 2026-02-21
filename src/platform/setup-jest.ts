@@ -37,6 +37,20 @@ getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting(),
 );`);
+
+    const tsconfigSpec = {
+      extends: './tsconfig.json',
+      compilerOptions: {
+        outDir: './out-tsc/spec',
+        types: ['jest', 'node'],
+        esModuleInterop: true,
+        emitDecoratorMetadata: true
+      },
+      files: ['setup-jest.ts'],
+      include: ['src/**/*.spec.ts', 'src/**/*.ts']
+    };
+    tree.create(`${options.name}/tsconfig.spec.json`, JSON.stringify(tsconfigSpec, null, 2));
+
     return tree;
   };
 }

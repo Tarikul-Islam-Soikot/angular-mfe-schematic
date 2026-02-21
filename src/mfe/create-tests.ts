@@ -12,6 +12,11 @@ describe('UserService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(UserService);
+    (service as any).users = [
+      { id: 1, name: 'John Doe', email: 'john@example.com', roleId: 1, roleName: 'Admin', gender: 'male', amount: 5000, isActive: true, countryId: 1, countryName: 'USA' },
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com', roleId: 2, roleName: 'User', gender: 'female', amount: 15000, isActive: true, countryId: 2, countryName: 'UK' }
+    ];
+    (service as any).nextId = 3;
   });
 
   it('should create user', () => {
