@@ -3,12 +3,12 @@ import { Schema } from './schema';
 
 export function createLibraryTests(options: Schema): Rule {
   return (tree: Tree) => {
-    const libName = 'shared-lib';
+    const libPath = `${options.name}/src/lib`;
 
     const baseServiceTest = `import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { BaseService } from './base.service';
-import { NotificationService } from './notification.service';
+import { NotificationService } from '../../notification/notification.service';
 
 describe('BaseService', () => {
   let service: BaseService;
@@ -187,12 +187,12 @@ describe('ConfigService', () => {
   });
 });`;
 
-    tree.create(`${options.name}/src/lib/${libName}/services/base-service/base.service.spec.ts`, baseServiceTest);
-    tree.create(`${options.name}/src/lib/${libName}/services/config-service/config.service.spec.ts`, configServiceTest);
-    tree.create(`${options.name}/src/lib/${libName}/services/notification-service/notification.service.spec.ts`, notificationServiceTest);
-    tree.create(`${options.name}/src/lib/${libName}/validators/custom-validators/custom-validators.spec.ts`, validatorsTest);
-    tree.create(`${options.name}/src/lib/${libName}/pipes/truncate-pipe/truncate.pipe.spec.ts`, truncatePipeTest);
-    tree.create(`${options.name}/src/lib/${libName}/pipes/capitalize-pipe/capitalize.pipe.spec.ts`, capitalizePipeTest);
+    tree.create(`${libPath}/core/services/config/config.service.spec.ts`, configServiceTest);
+    tree.create(`${libPath}/core/services/base/base.service.spec.ts`, baseServiceTest);
+    tree.create(`${libPath}/core/services/notification/notification.service.spec.ts`, notificationServiceTest);
+    tree.create(`${libPath}/core/validators/custom-validators/custom-validators.spec.ts`, validatorsTest);
+    tree.create(`${libPath}/core/pipes/truncate/truncate.pipe.spec.ts`, truncatePipeTest);
+    tree.create(`${libPath}/core/pipes/capitalize/capitalize.pipe.spec.ts`, capitalizePipeTest);
 
     return tree;
   };

@@ -3,7 +3,7 @@ import { Schema } from './schema';
 
 export function createLibrary(options: Schema): Rule {
   return (tree: Tree) => {
-    const libName = 'shared-lib';
+    const libPath = `${options.name}/src/lib`;
     
     // Core library services
     const configService = `import { Injectable } from '@angular/core';
@@ -478,31 +478,34 @@ export class FooterComponent {
 }`;
 
     // Create core library structure
-    tree.create(`${options.name}/src/lib/${libName}/core/services/config.service.ts`, configService);
-    tree.create(`${options.name}/src/lib/${libName}/core/services/base.service.ts`, baseService);
-    tree.create(`${options.name}/src/lib/${libName}/core/services/notification.service.ts`, notificationService);
-    tree.create(`${options.name}/src/lib/${libName}/core/services/index.ts`, `export * from './config.service';\nexport * from './base.service';\nexport * from './notification.service';`);
-    tree.create(`${options.name}/src/lib/${libName}/core/validators/custom-validators.ts`, customValidators);
-    tree.create(`${options.name}/src/lib/${libName}/core/validators/index.ts`, `export * from './custom-validators';`);
-    tree.create(`${options.name}/src/lib/${libName}/core/directives/highlight.directive.ts`, highlightDirective);
-    tree.create(`${options.name}/src/lib/${libName}/core/directives/index.ts`, `export * from './highlight.directive';`);
-    tree.create(`${options.name}/src/lib/${libName}/core/pipes/truncate.pipe.ts`, truncatePipe);
-    tree.create(`${options.name}/src/lib/${libName}/core/pipes/capitalize.pipe.ts`, capitalizePipe);
-    tree.create(`${options.name}/src/lib/${libName}/core/pipes/index.ts`, `export * from './truncate.pipe';\nexport * from './capitalize.pipe';`);
-    tree.create(`${options.name}/src/lib/${libName}/core/core.module.ts`, coreModule);
+    tree.create(`${libPath}/core/services/config/config.service.ts`, configService);
+    tree.create(`${libPath}/core/services/base/base.service.ts`, baseService);
+    tree.create(`${libPath}/core/services/notification/notification.service.ts`, notificationService);
+    tree.create(`${libPath}/core/services/index.ts`, `export * from './config/config.service';\nexport * from './base/base.service';\nexport * from './notification/notification.service';`);
+    
+    tree.create(`${libPath}/core/validators/custom-validators/custom-validators.ts`, customValidators);
+    tree.create(`${libPath}/core/validators/index.ts`, `export * from './custom-validators/custom-validators';`);
+    
+    tree.create(`${libPath}/core/directives/highlight/highlight.directive.ts`, highlightDirective);
+    tree.create(`${libPath}/core/directives/index.ts`, `export * from './highlight/highlight.directive';`);
+    
+    tree.create(`${libPath}/core/pipes/truncate/truncate.pipe.ts`, truncatePipe);
+    tree.create(`${libPath}/core/pipes/capitalize/capitalize.pipe.ts`, capitalizePipe);
+    tree.create(`${libPath}/core/pipes/index.ts`, `export * from './truncate/truncate.pipe';\nexport * from './capitalize/capitalize.pipe';`);
+    tree.create(`${libPath}/core/core.module.ts`, coreModule);
     
     // Create template library structure
-    tree.create(`${options.name}/src/lib/${libName}/template/header/header.component.ts`, headerComponent);
-    tree.create(`${options.name}/src/lib/${libName}/template/footer/footer.component.ts`, footerComponent);
-    tree.create(`${options.name}/src/lib/${libName}/template/index.ts`, `export * from './header/header.component';\nexport * from './footer/footer.component';`);
+    tree.create(`${libPath}/template/header/header.component.ts`, headerComponent);
+    tree.create(`${libPath}/template/footer/footer.component.ts`, footerComponent);
+    tree.create(`${libPath}/template/index.ts`, `export * from './header/header.component';\nexport * from './footer/footer.component';`);
     
     // Main library public API
     const publicApi = `export * from './core/services';\nexport * from './core/validators';\nexport * from './core/directives';\nexport * from './core/pipes';\nexport * from './core/core.module';\nexport * from './template';`;
-    tree.create(`${options.name}/src/lib/${libName}/public-api.ts`, publicApi);
+    tree.create(`${libPath}/public-api.ts`, publicApi);
 
     // Library package.json
     const libPackageJson = {
-      name: '@tarikul-islam-soikot/mfe-shared-lib',
+      name: 'mfe-lib',
       version: '1.0.0',
       description: 'Shared library for MFE and Platform applications',
       main: 'dist/public-api.js',
@@ -516,7 +519,7 @@ export class FooterComponent {
       license: 'MIT',
       repository: {
         type: 'git',
-        url: 'https://github.com/Tarikul-Islam-Soikot/mfe-shared-lib.git'
+        url: 'https://github.com/Tarikul-Islam-Soikot/mfe-lib.git'
       },
       files: ['dist'],
       peerDependencies: {
@@ -531,11 +534,11 @@ export class FooterComponent {
         typescript: '~5.9.2'
       }
     };
-    tree.create(`${options.name}/src/lib/${libName}/package.json`, JSON.stringify(libPackageJson, null, 2));
+    tree.create(`${libPath}/package.json`, JSON.stringify(libPackageJson, null, 2));
 
     // Library tsconfig
     const libTsConfig = {
-      extends: '../../../tsconfig.json',
+      extends: '../../tsconfig.json',
       compilerOptions: {
         outDir: './dist',
         declaration: true,
@@ -546,15 +549,15 @@ export class FooterComponent {
       include: ['**/*.ts'],
       exclude: ['**/*.spec.ts', 'dist']
     };
-    tree.create(`${options.name}/src/lib/${libName}/tsconfig.lib.json`, JSON.stringify(libTsConfig, null, 2));
+    tree.create(`${libPath}/tsconfig.lib.json`, JSON.stringify(libTsConfig, null, 2));
 
     // GitHub Actions workflow
-    const githubWorkflow = `name: Publish Shared Library
+    const githubWorkflow = `name: Publish MFE Library
 
 on:
   push:
     paths:
-      - 'src/lib/shared-lib/**'
+      - 'src/lib/**'
     branches:
       - main
 
@@ -571,20 +574,25 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@tarikul-islam-soikot'
       
+      - name: Configure package name
+        working-directory: ./src/lib
+        run: |
+          npm pkg set name="@tarikul-islam-soikot/mfe-lib"
+      
       - name: Install dependencies
-        working-directory: ./src/lib/shared-lib
+        working-directory: ./src/lib
         run: npm install
       
       - name: Build library
-        working-directory: ./src/lib/shared-lib
+        working-directory: ./src/lib
         run: npm run build
       
       - name: Bump version
-        working-directory: ./src/lib/shared-lib
+        working-directory: ./src/lib
         run: npm version patch --no-git-tag-version
       
       - name: Publish to GitHub Packages
-        working-directory: ./src/lib/shared-lib
+        working-directory: ./src/lib
         run: npm publish
         env:
           NODE_AUTH_TOKEN: \${{ secrets.GITHUB_TOKEN }}`;
