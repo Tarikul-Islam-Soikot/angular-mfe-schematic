@@ -57,8 +57,8 @@ export class ConfigService {
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { NotificationService } from './notification.service';
-import { ConfigService } from './config.service';
+import { NotificationService } from '../notification/notification.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable({
   providedIn: 'root'
@@ -219,6 +219,28 @@ export class CapitalizePipe implements PipeTransform {
   transform(value: string): string {
     if (!value) return '';
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  }
+}`;
+        const amountDescriptorPipe = `import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'amountDescriptor',
+  standalone: true
+})
+export class AmountDescriptorPipe implements PipeTransform {
+  transform(value: number): string {
+    if (!value || value === 0) return '0';
+    if (value < 0) return 'Negative ' + this.formatAmount(Math.abs(value));
+    return this.formatAmount(value);
+  }
+
+  private formatAmount(value: number): string {
+    if (value >= 1000000000000) return (value / 1000000000000).toFixed(2) + ' Trillion';
+    if (value >= 1000000000) return (value / 1000000000).toFixed(2) + ' Billion';
+    if (value >= 1000000) return (value / 1000000).toFixed(2) + ' Million';
+    if (value >= 1000) return (value / 1000).toFixed(2) + ' Thousand';
+    if (value >= 100) return (value / 100).toFixed(2) + ' Hundred';
+    return value.toString();
   }
 }`;
         const coreModule = `import { NgModule } from '@angular/core';
@@ -477,18 +499,73 @@ export class FooterComponent {
         tree.create(`${libPath}/core/directives/index.ts`, `export * from './highlight/highlight.directive';`);
         tree.create(`${libPath}/core/pipes/truncate/truncate.pipe.ts`, truncatePipe);
         tree.create(`${libPath}/core/pipes/capitalize/capitalize.pipe.ts`, capitalizePipe);
-        tree.create(`${libPath}/core/pipes/index.ts`, `export * from './truncate/truncate.pipe';\nexport * from './capitalize/capitalize.pipe';`);
+        tree.create(`${libPath}/core/pipes/amount-descriptor/amount-descriptor.pipe.ts`, amountDescriptorPipe);
+        tree.create(`${libPath}/core/pipes/index.ts`, `export * from './truncate/truncate.pipe';\nexport * from './capitalize/capitalize.pipe';\nexport * from './amount-descriptor/amount-descriptor.pipe';`);
         tree.create(`${libPath}/core/core.module.ts`, coreModule);
+        tree.create(`${libPath}/core/index.ts`, `export * from './services';\nexport * from './validators';\nexport * from './directives';\nexport * from './pipes';\nexport * from './core.module';`);
+        // Create data library for shared state
+        const dataService = `import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+export interface SharedData {
+  [key: string]: any;
+}
+
+@Injectable({ providedIn: 'root' })
+export class DataService {
+  private dataStore = new BehaviorSubject<SharedData>({});
+  public data$ = this.dataStore.asObservable();
+
+  setData(key: string, value: any): void {
+    this.dataStore.next({ ...this.dataStore.value, [key]: value });
+  }
+
+  getData(key: string): any {
+    return this.dataStore.value[key];
+  }
+}`;
+        const authService = `import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private userSubject = new BehaviorSubject<User | null>(null);
+  public user$ = this.userSubject.asObservable();
+
+  login(user: User): void {
+    this.userSubject.next(user);
+  }
+
+  logout(): void {
+    this.userSubject.next(null);
+  }
+
+  isLoggedIn(): boolean {
+    return this.userSubject.value !== null;
+  }
+}`;
+        tree.create(`${libPath}/data/data-service/data.service.ts`, dataService);
+        tree.create(`${libPath}/data/auth-service/auth.service.ts`, authService);
+        tree.create(`${libPath}/data/index.ts`, `export * from './data-service/data.service';\nexport * from './auth-service/auth.service';`);
+        tree.create(`${libPath}/data/package.json`, JSON.stringify({ name: '@ngx-mfe/data', version: '1.0.0', main: 'index.ts' }, null, 2));
         // Create template library structure
         tree.create(`${libPath}/template/header/header.component.ts`, headerComponent);
         tree.create(`${libPath}/template/footer/footer.component.ts`, footerComponent);
         tree.create(`${libPath}/template/index.ts`, `export * from './header/header.component';\nexport * from './footer/footer.component';`);
+        tree.create(`${libPath}/template/package.json`, JSON.stringify({ name: '@ngx-mfe/template', version: '1.0.0', main: 'index.ts' }, null, 2));
         // Main library public API
-        const publicApi = `export * from './core/services';\nexport * from './core/validators';\nexport * from './core/directives';\nexport * from './core/pipes';\nexport * from './core/core.module';\nexport * from './template';`;
+        const publicApi = `export * from './core';`;
         tree.create(`${libPath}/public-api.ts`, publicApi);
+        tree.create(`${libPath}/core/package.json`, JSON.stringify({ name: '@ngx-mfe/core', version: '1.0.0', main: 'index.ts' }, null, 2));
         // Library package.json
         const libPackageJson = {
-            name: 'mfe-lib',
+            name: '@ngx-mfe/shared',
             version: '1.0.0',
             description: 'Shared library for MFE and Platform applications',
             main: 'dist/public-api.js',
@@ -502,17 +579,23 @@ export class FooterComponent {
             license: 'MIT',
             repository: {
                 type: 'git',
-                url: 'https://github.com/Tarikul-Islam-Soikot/mfe-lib.git'
+                url: 'https://github.com/ngx-mfe/platform.git'
             },
             files: ['dist'],
             peerDependencies: {
                 '@angular/core': '^21.0.0',
                 '@angular/common': '^21.0.0',
+                '@angular/forms': '^21.0.0',
+                '@angular/material': '^21.0.0',
+                '@angular/router': '^21.0.0',
                 rxjs: '^7.8.0'
             },
             devDependencies: {
                 '@angular/core': '^21.0.0',
                 '@angular/common': '^21.0.0',
+                '@angular/forms': '^21.0.0',
+                '@angular/material': '^21.0.0',
+                '@angular/router': '^21.0.0',
                 rxjs: '^7.8.0',
                 typescript: '~5.9.2'
             }
@@ -532,6 +615,54 @@ export class FooterComponent {
             exclude: ['**/*.spec.ts', 'dist']
         };
         tree.create(`${libPath}/tsconfig.lib.json`, JSON.stringify(libTsConfig, null, 2));
+        // Library README
+        const libReadme = `# MFE Shared Library
+
+Shared library for MFE and Platform applications.
+
+## Development Workflow
+
+### 1. Make Changes to Library
+Edit files in \`src/lib/\` folder:
+- Services: \`src/lib/core/services/\`
+- Validators: \`src/lib/core/validators/\`
+- Directives: \`src/lib/core/directives/\`
+- Pipes: \`src/lib/core/pipes/\`
+- Components: \`src/lib/template/\`
+
+### 2. Build Library Locally
+\`\`\`bash
+cd src/lib
+npm run build
+\`\`\`
+
+### 3. Publish to GitHub
+Commit and push your changes:
+\`\`\`bash
+git add .
+git commit -m "Update library"
+git push
+\`\`\`
+
+GitHub Actions will automatically:
+- Build the library
+- Bump the version
+- Publish to GitHub Packages
+
+### 4. Install in MFE/Platform Projects
+\`\`\`bash
+npm install @ngx-mfe/shared@latest
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { ConfigService, BaseService } from '@ngx-mfe/shared';
+import { DataService, AuthService } from '@ngx-mfe/shared';
+import { HeaderComponent, FooterComponent } from '@ngx-mfe/shared';
+\`\`\`
+`;
+        tree.create(`${libPath}/README.md`, libReadme);
         // GitHub Actions workflow
         const githubWorkflow = `name: Publish MFE Library
 
@@ -545,6 +676,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v3
       
@@ -553,12 +687,12 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@tarikul-islam-soikot'
+          scope: '@ngx-mfe'
       
       - name: Configure package name
         working-directory: ./src/lib
         run: |
-          npm pkg set name="@tarikul-islam-soikot/mfe-lib"
+          npm pkg set name="@ngx-mfe/shared"
       
       - name: Install dependencies
         working-directory: ./src/lib
@@ -579,7 +713,7 @@ jobs:
           NODE_AUTH_TOKEN: \${{ secrets.GITHUB_TOKEN }}`;
         tree.create(`${options.name}/.github/workflows/publish-lib.yml`, githubWorkflow);
         // .npmrc for consuming the library
-        const npmrc = `@tarikul-islam-soikot:registry=https://npm.pkg.github.com`;
+        const npmrc = `@ngx-mfe:registry=https://npm.pkg.github.com`;
         tree.create(`${options.name}/.npmrc`, npmrc);
         return tree;
     };
