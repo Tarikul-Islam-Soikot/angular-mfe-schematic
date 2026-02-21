@@ -122,12 +122,16 @@ npm run build
 npm link
 
 # Generate test projects
-ng new test-mfe --collection=angular-mfe-schematic --schematic=mfe --name=test-mfe --port=4201
-ng new test-platform --collection=angular-mfe-schematic --schematic=platform --name=test-platform --port=4200
+schematics angular-mfe-schematic:mfe --name=test-mfe --port=4201 --dry-run=false
+schematics angular-mfe-schematic:platform --name=test-platform --port=4200 --dry-run=false
+
+# Install dependencies
+cd test-mfe && npm install
+cd ../test-platform && npm install
 
 # Run applications
-cd test-mfe && npm start
-cd test-platform && npm start
+cd ../test-mfe && npm start
+cd ../test-platform && npm start
 ```
 
 ### Quick Start (Windows)
