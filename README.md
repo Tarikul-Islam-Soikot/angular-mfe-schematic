@@ -105,6 +105,12 @@ import { ConfigService, BaseService } from '@ngx-mfe/shared';
 import { AmountDescriptorPipe } from '@ngx-mfe/shared';
 ```
 
+## Advanced Guides
+
+- **[MFE Integration Guide](MFE_INTEGRATION_GUIDE.md)**: Complete guide for adding new schematics and integrating MFEs
+- **[Contributing Guide](CONTRIBUTING.md)**: Development and contribution guidelines
+- **[Changelog](CHANGELOG.md)**: Version history and release notes
+
 ## Development
 
 ```bash
