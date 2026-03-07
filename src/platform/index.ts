@@ -196,7 +196,12 @@ function createWorkspaceFiles(options: Schema): Rule {
         "target": "ES2022",
         "module": "ES2022",
         "useDefineForClassFields": false,
-        "lib": ["ES2022", "dom"]
+        "lib": ["ES2022", "dom"],
+        "paths": {
+          "@ngx-mfe/core": ["src/lib/core"],
+          "@ngx-mfe/data": ["src/lib/data"],
+          "@ngx-mfe/template": ["src/lib/template"]
+        }
       },
       "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,
@@ -335,13 +340,20 @@ app-user-list .mat-table {
     createOrOverwrite(tree, `${options.name}/src/app/material.module.ts`, `import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CdkTableModule } from '@angular/cdk/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -357,6 +369,13 @@ const MATERIAL_MODULES = [
   MatCardModule,
   MatIconModule,
   MatToolbarModule,
+  MatRadioModule,
+  MatCheckboxModule,
+  MatSelectModule,
+  MatAutocompleteModule,
+  MatDatepickerModule,
+  MatNativeDateModule,
+  MatChipsModule,
   MatTooltipModule,
   CdkTableModule,
   MatSortModule,
@@ -372,13 +391,12 @@ export class MaterialModule {}
 
     createOrOverwrite(tree, `${options.name}/src/app/app.component.ts`, `import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
+import { MaterialModule } from './material.module';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule],
+  imports: [RouterOutlet, RouterLink, MaterialModule],
   template: \`
     <mat-toolbar color="primary">
       <span>Platform Shell</span>
@@ -466,6 +484,10 @@ export const routes: Routes = [
   {
     path: 'library',
     loadComponent: () => import('./components/library/library.component').then(c => c.LibraryComponent)
+  },
+  {
+    path: 'dynamic-demo',
+    loadComponent: () => import('@ngx-mfe/core').then(m => m.DynamicDemoComponent)
   },
   {
     path: 'users',
